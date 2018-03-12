@@ -93,40 +93,39 @@ class ArrayImage:
             from scipy.ndimage import imread
 
         # read images
-        for (t, m) in zip(test, mast):
+        try:
+            test_im = imread(test)
+            mast_im = imread(mast)
+        except ImportError:
+            logging.warning("Likely missing Python Image Library (PIL).")
+
+            # try Scikit Image
+            from skimage.io import imread
             try:
-                test_im = imread(t)
-                mast_im = imread(m)
-            except ImportError:
-                logging.warning("Likely missing Python Image Library (PIL).")
+                mast_im = imread(mast)
+                test_im = imread(test)
+            except (ValueError, TypeError, ImportError):
+                logging.warning("Not able to open image with skimag.io. Likely"
+                                " missing image library.")
+                return None
 
-                # try Scikit Image
-                from skimage.io import imread
-                try:
-                    mast_im = imread(m)
-                    test_im = imread(t)
-                except (ValueError, TypeError, ImportError):
-                    logging.warning("Not able to open image with skimag.io. Likely"
-                                    " missing image library.")
-                    return None
+        # check diff
+        try:
+            diff_im = do_diff(test_im, mast_im)
 
-            # check diff
-            try:
-                diff_im = do_diff(test_im, mast_im)
+            if len(np.nonzero(diff_im)) > 3:
+                logging.error("Values differ between {0} and {1}.".
+                              format(test, mast))
+                return diff_im
 
-                if len(np.nonzero(diff_im)) > 3:
-                    logging.error("Values differ between {0} and {1}.".
-                                  format(t, m))
-                    return diff_im
+            else:
+                logging.info("Values equivalent between {0} and {1}.".
+                             format(test, mast))
+                return None
 
-                else:
-                    logging.info("Values equivalent between {0} and {1}.".
-                                 format(t, m))
-                    return None
-
-            except ValueError:
-                logging.error("Image {0} and {1} are not the same dimensions.".
-                              format(t, m))
+        except ValueError:
+            logging.error("Image {0} and {1} are not the same dimensions.".
+                          format(test, mast))
 
 
 class GeoImage:

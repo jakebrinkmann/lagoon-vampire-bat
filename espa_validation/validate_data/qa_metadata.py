@@ -32,7 +32,6 @@ class MetadataQA:
             logging.critical('XML file {0} is NOT valid with XML schema {1}.'
                              .format(test, schema))
 
-
     @staticmethod
     def check_text_files(test, mast, ext):
         """Check master and test text-based files (headers, XML, etc.)
@@ -56,7 +55,7 @@ class MetadataQA:
 
         if len(mast) != len(test):
             logging.error("{0} file lengths differ. Master: {1} | Test:"
-                " {2}".format(ext, len(mast), len(test)))
+                          " {2}".format(ext, len(mast), len(test)))
             return
 
         for i, j in zip(test, mast):
@@ -96,14 +95,14 @@ class MetadataQA:
                              format(i, j))
 
     @staticmethod
-    def check_jpeg_files(test, mast, dir_out):
-        """Check JPEG files (i.e., Gverify or preview images) for diffs in file
-        size or file contents. Plot difference image if applicable.
-
-        Args:
-            test <str>: path to test jpeg file
-            mast <str>: path to master jpeg file
-            dir_out <str>: output directory for difference image
+    def check_jpeg_files(test: list, mast: list, dir_out: str) -> None:
+        """
+        Check JPEG files (i.e., Gverify or preview images) for diffs in file size or file contents.  Plot difference
+        image if applicable
+        :param test: List of paths to test jpg files
+        :param mast: List of paths to master jpg files
+        :param dir_out: Full path to output directory
+        :return:
         """
         test, mast = Cleanup.remove_nonmatching_files(test, mast)
         logging.info("Checking JPEG preview/gverify files...")
@@ -113,26 +112,25 @@ class MetadataQA:
                           "directories.")
 
         else:
-            if len(test) > 0 and len(mast) > 0:
-                for i, j in zip(test, mast):
+            for i, j in zip(test, mast):
 
-                    # Compare file sizes
-                    if os.path.getsize(i) != os.path.getsize(j):
-                        logging.warning("JPEG file sizes do not match for "
-                                        "Master {0} and Test {1}...\n".
-                                        format(j, i))
-                        logging.warning("{0} size: {1}".format(
-                            i, os.path.getsize(i)))
-                        logging.warning("{0} size: {1}".format(
-                            j, os.path.getsize(j)))
+                # Compare file sizes
+                if os.path.getsize(i) != os.path.getsize(j):
+                    logging.warning("JPEG file sizes do not match for "
+                                    "Master {0} and Test {1}...\n".
+                                    format(j, i))
+                    logging.warning("{0} size: {1}".format(
+                        i, os.path.getsize(i)))
+                    logging.warning("{0} size: {1}".format(
+                        j, os.path.getsize(j)))
 
-                    else:
-                        logging.info("JPEG files {0} and {1} are the same "
-                                     "size".format(j, i))
+                else:
+                    logging.info("JPEG files {0} and {1} are the same "
+                                 "size".format(j, i))
 
-                    # diff images
-                    result = ArrayImage.check_images(test, mast)
+                # diff images
+                result = ArrayImage.check_images(i, j)
 
-                    if result:
-                        ImWrite.plot_diff_image(result, i.split(os.sep)[-1],
-                                                "diff", dir_out)
+                if result:
+                    ImWrite.plot_diff_image(test=i, mast=j, diff_raster=result, fn_out=i.split(os.sep)[-1],
+                                            fn_type="diff_", dir_out=dir_out)
