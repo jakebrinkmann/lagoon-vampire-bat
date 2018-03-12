@@ -25,12 +25,15 @@ Changelog:
     15 Mar 2017: Added optional XML schema validation; fixed typos
     21 Mar 2017: Added flag to include/exclude nodata from calculations
 
-Modified February and March 2018 by Daniel Zelenak
+Modified February and March 2018
+Daniel Zelenak
+daniel.zelenak.ctr@usgs.gov
 
     Changelog:
-        Add typing to qa_data params
+        Add PEP 484 typing, trying to make it more clear what types are being passed
         Change qa_data __doc__ to reStructuredText format
-        Pass entire list rather than first element of list
+        Addressed JPEG testing exceptions resulting from passing strings instead of lists
+        In qa_metadata.MetadataQA.check_jpeg_files added ImWrite.plot_diff_image and passing all expected params
 """
 
 import sys
@@ -41,11 +44,14 @@ from espa_validation.validate_data.qa_metadata import MetadataQA
 import logging
 import time
 
+
 # TODO (med): Enable SDS sorting with NetCDF, HDF files.
 # TODO (low): Implement checking file names with XML.
 
-def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool=True, xml_schema: str=None,
-            verbose: bool=False, incl_nd: bool=False, enforce_fnmatch: bool=True) -> None:
+# TODO (low): Only CleanUp files that pass all matching tests, leave files with differences to allow further testing.
+
+def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xml_schema: str = None,
+            verbose: bool = False, incl_nd: bool = False, enforce_fnmatch: bool = True) -> None:
     """
     Function to check files and call appropriate QA module(s)
     :param enforce_fnmatch: Decide whether or not to enforce that file names must match exactly
@@ -138,8 +144,8 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool=True, xml_
 
             # if a text-based file
             if (ext.lower() == ".txt" or ext.lower() == ".xml"
-                or ext.lower() == ".gtf" or ext.lower() == ".hdr"
-                or ext.lower() == ".stats"):
+                    or ext.lower() == ".gtf" or ext.lower() == ".hdr"
+                    or ext.lower() == ".stats"):
 
                 MetadataQA.check_text_files(test_f, mast_f, ext)
 
