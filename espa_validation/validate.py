@@ -18,7 +18,7 @@ def main():
     required_named.add_argument("-o", dest="dir_out", type=str, required=True, action="store",
                                 help="The full path to the Results directory")
 
-    parser.add_argument("-x", dest="xml_schema", action="store", required=False,
+    parser.add_argument("-x", dest="xml_schema", type=str, required=False, action="store",
                         help="Full path to XML schema")
 
     parser.add_argument("--no-archive", dest="archive", required=False, action="store_false",
@@ -29,6 +29,9 @@ def main():
 
     parser.add_argument("--include-nodata", dest="incl_nd", required=False, action="store_true",
                         help="Do not mask NoData values")
+
+    parser.add_argument("--enforce-fn", dest="enforce_fnmatch", required=False, action="store_true",
+                        help="Decide if file names must match exactly in order to be compared")
 
     args = parser.parse_args()
 

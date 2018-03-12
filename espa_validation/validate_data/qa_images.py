@@ -45,8 +45,6 @@ def call_stats(test, mast, rast_arr, fn_out, dir_out, rast_num=0):
         rast_num <int>: individual number of image (default=0)
         nodata <int>: no data value (default=-9999)
     """
-
-
     if type(rast_arr) is np.ndarray or \
             type(rast_arr) is np.ma.core.MaskedArray:
         if np.any(rast_arr != 0):
@@ -95,44 +93,45 @@ class ArrayImage:
             from scipy.ndimage import imread
 
         # read images
-        try:
-            test_im = imread(test)
-            mast_im = imread(mast)
-        except ImportError:
-            logging.warning("Likely missing Python Image Library (PIL).")
-
-            # try Scikit Image
-            from skimage.io import imread
+        for (t, m) in zip(test, mast):
             try:
-                mast_im = imread(mast)
-                test_im = imread(test)
-            except (ValueError, TypeError, ImportError):
-                logging.warning("Not able to open image with skimag.io. Likely"
-                                " missing image library.")
-                return None
+                test_im = imread(t)
+                mast_im = imread(m)
+            except ImportError:
+                logging.warning("Likely missing Python Image Library (PIL).")
 
-        # check diff
-        try:
-            diff_im = do_diff(test_im, mast_im)
+                # try Scikit Image
+                from skimage.io import imread
+                try:
+                    mast_im = imread(m)
+                    test_im = imread(t)
+                except (ValueError, TypeError, ImportError):
+                    logging.warning("Not able to open image with skimag.io. Likely"
+                                    " missing image library.")
+                    return None
 
-            if len(np.nonzero(diff_im)) > 3:
-                logging.error("Values differ between {0} and {1}.".
-                              format(test, mast))
-                return diff_im
+            # check diff
+            try:
+                diff_im = do_diff(test_im, mast_im)
 
-            else:
-                logging.info("Values equivalent between {0} and {1}.".
-                             format(test, mast))
-                return None
+                if len(np.nonzero(diff_im)) > 3:
+                    logging.error("Values differ between {0} and {1}.".
+                                  format(t, m))
+                    return diff_im
 
-        except ValueError:
-            logging.error("Image {0} and {1} are not the same dimensions.".
-                          format(test, mast))
+                else:
+                    logging.info("Values equivalent between {0} and {1}.".
+                                 format(t, m))
+                    return None
+
+            except ValueError:
+                logging.error("Image {0} and {1} are not the same dimensions.".
+                              format(t, m))
 
 
 class GeoImage:
     @staticmethod
-    def check_images(test, mast, dir_out, ext, include_nd=False):
+    def check_images(test, mast, dir_out, ext, include_nd=False, fnmatching=True):
         """Compare the test and master images, both for their raw contents and
         geographic parameters. If differences exist, produce diff plot + CSV
         stats file.
@@ -146,8 +145,9 @@ class GeoImage:
         """
         print("Checking {0} files...".format(ext))
 
-        # clean up non-matching files
-        test, mast = Cleanup.remove_nonmatching_files(test, mast)
+        if fnmatching:
+            # clean up non-matching files
+            test, mast = Cleanup.remove_nonmatching_files(test, mast)
 
         # make sure there are actually files to check
         if mast is None or test is None:

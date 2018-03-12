@@ -1,6 +1,10 @@
 """qa_metadata.py"""
+
 import os
 import logging
+from lxml import etree
+from espa_validation.validate_data.file_io import Cleanup, ImWrite
+from espa_validation.validate_data.qa_images import ArrayImage
 
 
 class MetadataQA:
@@ -11,8 +15,6 @@ class MetadataQA:
         :param schema: <str> Path to XML schema file.
         :return: None
         """
-        from lxml import etree
-
         # read schema
         xmlschema = etree.XMLSchema(etree.parse(schema))
 
@@ -42,8 +44,6 @@ class MetadataQA:
             mast <str>: path to master text file
             ext <str>: file extension (should be .txt, .xml or .gtf
         """
-        from file_io import Cleanup
-
         logging.info("Checking {0} files...".format(ext))
 
         test, mast = Cleanup.remove_nonmatching_files(test, mast)
@@ -105,9 +105,6 @@ class MetadataQA:
             mast <str>: path to master jpeg file
             dir_out <str>: output directory for difference image
         """
-        from qa_images import ArrayImage
-        from file_io import ImWrite, Cleanup
-
         test, mast = Cleanup.remove_nonmatching_files(test, mast)
         logging.info("Checking JPEG preview/gverify files...")
 
@@ -137,5 +134,5 @@ class MetadataQA:
                     result = ArrayImage.check_images(test, mast)
 
                     if result:
-                        ImWrite.plot_image_diff(result, i.split(os.sep)[-1],
+                        ImWrite.plot_diff_image(result, i.split(os.sep)[-1],
                                                 "diff", dir_out)

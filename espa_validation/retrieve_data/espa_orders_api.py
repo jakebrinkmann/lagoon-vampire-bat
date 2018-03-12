@@ -158,8 +158,8 @@ def get_orders(txt_in: str, outdir: str, username: str, espa_env: str):
                 # Create a list of all the lines containing the keyword "errors"
                 error_list.append(ast.literal_eval(line))
 
-    pprint(order_list)
-    pprint(error_list)
+    # pprint(order_list)
+    # pprint(error_list)
 
     t0 = get_time()
 
@@ -177,7 +177,7 @@ def get_orders(txt_in: str, outdir: str, username: str, espa_env: str):
 
             order_info = check_order_status(order[u"orderid"], espa_url, username, passwd)
 
-            print(order_info)
+            # print(order_info)
 
             if order_info is not False:
                 status_info = order_info[order[u"orderid"]]
