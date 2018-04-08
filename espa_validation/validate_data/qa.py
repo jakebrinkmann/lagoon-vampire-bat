@@ -25,6 +25,15 @@ Changelog:
     15 Mar 2017: Added optional XML schema validation; fixed typos
     21 Mar 2017: Added flag to include/exclude nodata from calculations
 
+Modified February and March 2018
+Daniel Zelenak
+daniel.zelenak.ctr@usgs.gov
+
+    Changelog:
+        Add PEP 484 typing, trying to make it more clear what types are being passed
+        Change qa_data __doc__ to reStructuredText format
+        Addressed JPEG testing exceptions resulting from passing strings instead of lists
+        In qa_metadata.MetadataQA.check_jpeg_files added ImWrite.plot_diff_image and passing all expected params
 """
 
 import sys
@@ -35,11 +44,14 @@ from espa_validation.validate_data.qa_metadata import MetadataQA
 import logging
 import time
 
+
 # TODO (med): Enable SDS sorting with NetCDF, HDF files.
 # TODO (low): Implement checking file names with XML.
 
-def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool=True, xml_schema: str=None,
-            verbose: bool=False, incl_nd: bool=False):
+# TODO (low): Only CleanUp files that pass all matching tests, leave files with differences to allow further testing.
+
+def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xml_schema: str = None,
+            verbose: bool = False, incl_nd: bool = False) -> None:
     """
     Function to check files and call appropriate QA module(s)
     :param dir_mast: Full path to the master directory
@@ -76,6 +88,7 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool=True, xml_
     if archive:
         # do initial cleanup of input directories
         Cleanup.cleanup_files(dir_mast)
+
         Cleanup.cleanup_files(dir_test)
 
         # create output directory if it doesn't exist
@@ -84,6 +97,7 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool=True, xml_
 
         # read in .tar.gz files
         test_files = Find.find_files(dir_test, ".gz")
+
         mast_files = Find.find_files(dir_mast, ".gz")
 
         # Extract files from archive
@@ -91,68 +105,83 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool=True, xml_
 
     # find only the deepest dirs
     test_dirs = sorted([r for r, d, f in os.walk(dir_test) if not d])
+
     mast_dirs = sorted([r for r, d, f in os.walk(dir_mast) if not d])
 
     if len(test_dirs) != len(mast_dirs):
         logging.critical("Directory structure of Master differs from Test.")
+
         sys.exit(1)
 
     for i in range(0, len(test_dirs)):
         # Find extracted files
         all_test = sorted(Find.find_files(test_dirs[i], ".*"))
+
         all_mast = sorted(Find.find_files(mast_dirs[i], ".*"))
 
         # Find unique file extensions
         exts = Find.get_ext(all_test, all_mast)
 
-        for j in exts:
-            logging.info("Finding {0} files...".format(j))
-            test_f = Find.find_files(test_dirs[i], j)
-            mast_f = Find.find_files(mast_dirs[i], j)
+        for ext in exts:
+            logging.info("Finding {0} files...".format(ext))
 
-            logging.info("Performing QA on {0} files located in {1}".
-                         format(j, dir_test))
+            test_f = Find.find_files(test_dirs[i], ext)
+
+            mast_f = Find.find_files(mast_dirs[i], ext)
+
+            logging.info("Performing QA on {0} files located in {1}".format(ext, dir_test))
+
             logging.info("Test files: {0}".format(test_f))
+
             logging.info("Mast files: {0}".format(mast_f))
 
             # remove any _hdf.img files found with .img files
-            if j == ".img":
+            if ext == ".img":
                 test_f = Cleanup.rm_files(test_f, "_hdf.img")
+
                 mast_f = Cleanup.rm_files(mast_f, "_hdf.img")
 
             # if a text-based file
-            if (j.lower() == ".txt" or j.lower() == ".xml"
-                or j.lower() == ".gtf" or j.lower() == ".hdr"
-                or j.lower() == ".stats"):
-                MetadataQA.check_text_files(test_f, mast_f, j)
+            if (ext.lower() == ".txt" or ext.lower() == ".xml"
+                    or ext.lower() == ".gtf" or ext.lower() == ".hdr"
+                    or ext.lower() == ".stats"):
+
+                MetadataQA.check_text_files(test_f, mast_f, ext)
 
                 # if text-based file is xml
-                if j.lower() == ".xml" and xml_schema:
+                if ext.lower() == ".xml" and xml_schema:
                     MetadataQA.check_xml_schema(test_f, xml_schema)
+
                     MetadataQA.check_xml_schema(mast_f, xml_schema)
 
             # if non-geo image
-            elif j.lower() == ".jpg":
-                MetadataQA.check_jpeg_files(test_f[0], mast_f[0], dir_out)
+            elif ext.lower() == ".jpg":
+                MetadataQA.check_jpeg_files(test_f, mast_f, dir_out)
 
             # if no extension
-            elif len(j) == 0:
+            elif len(ext) == 0:
                 continue
 
             # else, it's probably a geo-based image
             else:
-                GeoImage.check_images(test_f, mast_f, dir_out, j,
+                GeoImage.check_images(test_f, mast_f, dir_out, ext,
                                       include_nd=incl_nd)
 
     if archive:
         # Clean up files
         Cleanup.cleanup_files(dir_mast)
+
         Cleanup.cleanup_files(dir_test)
 
     # end timing
     t1 = time.time()
+
     m, s = divmod(t1 - t0, 60)
+
     h, m = divmod(m, 60)
-    logging.warning("Total runtime: {0}h, {1}m, {2}s.".format(h, round(m, 3),
-                                                              round(s, 3)))
+
+    logging.warning("Total runtime: {0}h, {1}m, {2}s.".format(h, round(m, 3), round(s, 3)))
+
     print("Done.")
+
+    return None

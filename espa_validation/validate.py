@@ -18,7 +18,7 @@ def main():
     required_named.add_argument("-o", dest="dir_out", type=str, required=True, action="store",
                                 help="The full path to the Results directory")
 
-    parser.add_argument("-x", dest="xml_schema", action="store", required=False,
+    parser.add_argument("-x", dest="xml_schema", type=str, required=False, action="store",
                         help="Full path to XML schema")
 
     parser.add_argument("--no-archive", dest="archive", required=False, action="store_false",

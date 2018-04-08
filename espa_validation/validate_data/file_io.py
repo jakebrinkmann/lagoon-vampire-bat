@@ -341,24 +341,24 @@ class Cleanup:
                 split_fnames.append(i.split(os.sep)[-1])
             return split_fnames
 
-        def compare_and_rm(test_fnames, mast_fnames):
-            """Compare just the file names, remove non-matches, return list
-
-            Args:
-                test_fnames <str>: test file
-                mast_fnames <str>: master file
+        def compare_and_rm(t_names, m_names):
             """
-            fn_diffs = sorted(list(set(rm_fn(test_fnames))
-                                   .difference(set(rm_fn(mast_fnames)))))
+            Compare just the file names, remove non-matches and return a list
+            :param t_names: test file names
+            :param m_names: master file names
+            :return:
+            """
+            fn_diffs = sorted(list(set(rm_fn(t_names))
+                                   .difference(set(rm_fn(m_names)))))
 
             if len(fn_diffs) > 0:
                 logging.warning("Files to be removed: {0}".format(fn_diffs))
 
             if len(fn_diffs) == 0:
-                return test_fnames
+                return t_names
 
             # get only file name
-            test_fn = rm_fn(test_fnames)
+            test_fn = rm_fn(t_names)
 
             rm = []
             for ii in test_fn:
@@ -370,9 +370,9 @@ class Cleanup:
             logging.debug("remove boolean: {0}".format(rm))
             logging.debug("test_fn: {0}".format(test_fn))
             logging.debug("final list: {0}".format(list(
-                itertools.compress(test_fnames, rm))))
+                itertools.compress(t_names, rm))))
 
-            return list(itertools.compress(test_fnames, rm))
+            return list(itertools.compress(t_names, rm))
 
         test_output = compare_and_rm(test_fnames, mast_fnames)
         mast_output = compare_and_rm(mast_fnames, test_fnames)

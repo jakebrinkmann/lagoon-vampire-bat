@@ -1,10 +1,10 @@
 """Place an ESPA order for potentially multiple scenes"""
 
-# Modified from order_scenes_c1.py written by Steve Foga on 15 Aug 2014, modified 26 Jun 2017
+# Modified from order_scenes_c1.py written by Steve Foga on 15 Aug 2014, modified by Steven Foga on 26 Jun 2017
 
 import os
+import sys
 import requests
-import yaml
 import json
 
 from espa_validation.retrieve_data import order_specs
@@ -28,23 +28,29 @@ def order_text(outdir: str) -> str:
     return outdir + os.sep + "order_{}_.txt".format(api_config.timestamp())
 
 
-def load_order(order: str) -> dict:
+def load_order(order_key: str) -> dict:
     """
     Load in a pre-constructed order by default if None is specified.  Otherwise, load the order from a .yaml file
-    :param order:
+    :param order_key: A string containing the order key, otherwise "original" will be used
     :return:
     """
-    if order is None:
-        return order_specs.test
+    if order_key is None:
+        return order_specs.orders["original"]
 
     else:
-        return yaml.load(order)
+        try:
+            return order_specs.orders[order_key]
+
+        except KeyError:
+            print("The given key: {} does not exist in the order_specs.py file.".format(order_key))
+
+            sys.exit(1)
 
 
 def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=None, order: str=None):
     """
     Place the order with the appropriate ESPA environment
-    :param order: Optionally specify a YAML containing the order
+    :param order: Optionally specify a keyword pointing to a specific order
     :param outdir: Optionally specify full path to the output directory, otherwise os.getcwd() is used
     :param ssl_ver: Depends on testing environment, True by default
     :param espa_env: The name of the ESPA environment

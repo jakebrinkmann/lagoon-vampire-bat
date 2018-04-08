@@ -1,11 +1,11 @@
 """Entry point to the retrieve_data.order_scenes_c1.py script"""
 
 import argparse
-from espa_validation.retrieve_data import order_scenes_c1
+from espa_validation.retrieve_data.order_scenes_c1 import place_order
 
 
 def main():
-    parser = argparse.ArgumentParser(description=order_scenes_c1.__doc__)
+    parser = argparse.ArgumentParser()
 
     required_named = parser.add_argument_group("Required named arguments")
 
@@ -18,15 +18,15 @@ def main():
     parser.add_argument("-o", dest="outdir", type=str, required=False, action="store",
                         help="Full path to the output directory")
 
-    parser.add_argument("--ssl-verify", dest="ssl_ver", type=bool, required=False, action="store_true",
+    parser.add_argument("--ssl-verify", dest="ssl_ver", required=False, action="store_true",
                         help="Set SSL Verify to True or False")
 
     parser.add_argument("--order", dest="order", type=str, required=False, action="store",
-                        help="Specify a file containing an order in the form of a python dict() type.")
+                        help="Specify a keyword to look up the appropriate order from order_specs.py")
 
     args = parser.parse_args()
 
-    order_scenes_c1.place_order(**vars(args))
+    place_order(**vars(args))
 
     return None
 

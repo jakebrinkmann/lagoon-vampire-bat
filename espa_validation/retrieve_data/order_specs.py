@@ -1,4 +1,4 @@
-order = [{'tm4_collection': {
+orders = {"original": [{'tm4_collection': {
     'inputs': ['LT04_L1TP_030031_19890420_20161002_01_T1'],
     'products': ['l1', 'source_metadata', 'toa', 'sr', 'bt',
                  'sr_ndvi', 'sr_ndmi', 'sr_nbr', 'sr_nbr2',
@@ -651,7 +651,7 @@ order = [{'tm4_collection': {
     'products': ['toa', 'sr']
 },
     'format': 'gtiff',
-    'note': 'Test1',
+    'note': 'Test2',
     'projection': {
         'utm': {
             'zone': 56,
@@ -737,13 +737,6 @@ order = [{'tm4_collection': {
             'longitudinal_pole': 0
         }
     },
-}, {'etm7_collection': {
-    'inputs': ['LE07_L1TP_200025_20000831_20170210_01_T1'],
-    'products': ['source_metadata', 'sr', 'swe', 'sr_ndvi']
-},
-    'format': 'envi',
-    'note': 'Test1'
-
 }, {'olitirs8_collection': {
     'inputs': ['LC08_L1TP_022032_20130828_20170309_01_T1'],
     'products': ['source_metadata', 'pixel_qa', 'st', 'sr_evi']
@@ -1059,13 +1052,494 @@ order = [{'tm4_collection': {
 },
     'format': 'gtiff',
     'note': 'Test1'
-}]
+}],
 
-test = [{
-    'olitirs8_collection': {
-        'inputs': ['LC08_L1TP_015035_20140713_20170304_01_T1'],
-        'products': ['sr', 'l1']
+    # ***********************************
+    # ***** END OF ORIGINAL ORDERS ******
+    # ***********************************
+
+    "test": [{
+        'olitirs8_collection': {
+            'inputs': ['LC08_L1TP_015035_20140713_20170304_01_T1'],
+            'products': ['sr', 'l1']
+        },
+        'format': 'gtiff',
+        'note': 'test_0'
+    }], "LT5_MYD13Q1": [{'myd13q1': {
+        'inputs': ['MYD13Q1.A2002185.h19v05.006.2015149070403'],
+        'products': ['l1']
     },
-    'format': 'gtiff',
-    'note': 'test_0'
-}]
+        'tm5_collection': {
+            'inputs': ['LT05_L1TP_182034_20020628_20161207_01_T1'],
+            'products': ['l1', 'sr_ndvi', 'sr_evi']
+        },
+        'format': 'envi',
+        'note': 'Test1',
+        'resize': {
+            'pixel_size': 250,
+            'pixel_size_units': 'meters'
+        },
+        'image_extents': {
+            'west': 188945.952,
+            'north': 4260854.770,
+            'east': 344521.263,
+            'south': 4149729.547,
+            'units': 'meters'
+        },
+        'projection': {
+            'utm': {
+                'zone': 35,
+                'zone_ns': 'north'
+            }
+        },
+        'resampling_method': 'bil'
+
+    }, {'myd13q1': {
+        'inputs': ['MYD13Q1.A2002185.h19v05.006.2015149070403'],
+        'products': ['l1', 'stats']
+    },
+        'tm5_collection': {
+            'inputs': ['LT05_L1TP_182034_20020628_20161207_01_T1'],
+            'products': ['l1', 'swe', 'sr_ndvi', 'stats']
+        },
+        'format': 'gtiff',
+        'note': 'Test2',
+        'resize': {
+            'pixel_size': 250,
+            'pixel_size_units': 'meters'
+        },
+        'image_extents': {
+            'west': 1190082.308,
+            'north': 1019317.137,
+            'east': 1335074.265,
+            'south': 907662.747,
+            'units': 'meters'
+        },
+        'projection': {
+            'aea': {
+                'central_meridian': 10,
+                'datum': 'nad27',
+                'false_easting': 0,
+                'false_northing': 0,
+                'latitude_of_origin': 30,
+                'standard_parallel_1': 43,
+                'standard_parallel_2': 62
+            }
+        },
+        'resampling_method': 'cc'
+
+    }, {'myd13q1': {
+        'inputs': ['MYD13Q1.A2002185.h19v05.006.2015149070403'],
+        'products': ['l1', 'stats']
+    },
+        'tm5_collection': {
+            'inputs': ['LT05_L1TP_182034_20020628_20161207_01_T1'],
+            'products': ['l1', 'st', 'sr_ndvi', 'stats']
+        },
+        'format': 'envi',
+        'note': 'Test3',
+        'resize': {
+            'pixel_size': 100,
+            'pixel_size_units': 'meters'
+        },
+        'image_extents': {
+            'west': 2048288.867,
+            'north': 4254354.005,
+            'east': 2217357.955,
+            'south': 4095074.520,
+            'units': 'meters'
+        },
+        'projection': {
+            'sinu': {
+                'central_meridian': 0,
+                'false_easting': 0,
+                'false_northing': 0
+            }
+        },
+        'resampling_method': 'nn'
+
+    }, {'myd13q1': {
+        'inputs': ['MYD13Q1.A2002185.h19v05.006.2015149070403'],
+        'products': ['l1', 'stats']
+    },
+        'tm5_collection': {
+            'inputs': ['LT05_L1TP_182034_20020628_20161207_01_T1'],
+            'products': ['l1', 'sr_ndvi', 'stats']
+        },
+        'format': 'gtiff',
+        'note': 'Test4',
+        'resize': {
+            'pixel_size': 0.005,
+            'pixel_size_units': 'dd'
+        },
+        'image_extents': {
+            'west': 23.495342,
+            'north': 38.425612,
+            'east': 25.011058,
+            'south': 37.021730,
+            'units': 'dd'
+        },
+        'projection': {
+            'lonlat': None
+        },
+        'resampling_method': 'nn'
+
+    }], "LE07_L1TP_089079_20150815": [{'etm7_collection': {
+        'inputs': ['LE07_L1TP_089079_20150815_20161022_01_T1'],
+        'products': ['toa', 'sr']
+    },
+        'format': 'envi',
+        'note': 'Test1',
+
+        # Should fail - all fill
+    }, {'etm7_collection': {
+        'inputs': ['LE07_L1TP_089079_20150815_20161022_01_T1'],
+        'products': ['toa', 'sr']
+    },
+        'format': 'gtiff',
+        'note': 'Test2',
+        'projection': {
+            'utm': {
+                'zone': 56,
+                'zone_ns': 'south'
+            }
+        },
+        'image_extents': {
+            'west': 350000,
+            'north': -3120000,
+            'east': 398000,
+            'south': -3160000,
+            'units': 'meters'
+        },
+        'resampling_method': 'nn'
+
+    }], "LT5_L1TP_010054_test3": [{'tm5_collection': {
+        'inputs': ['LT05_L1TP_010054_20110312_20161209_01_T1'],
+        'products': ['l1', 'bt', 'st']
+    },
+        'format': 'envi',
+        'note': 'Test3',
+        'resize': {
+            'pixel_size': 500,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'utm': {
+                'zone': 18,
+                'zone_ns': 'north'
+            }
+        },
+        'resampling_method': 'nn'
+
+    }], "LT5_L1TP_010054_test4": [{'tm5_collection': {
+        'inputs': ['LT05_L1TP_010054_20110312_20161209_01_T1'],
+        'products': ['sr_ndvi', 'sr_ndmi', 'sr_nbr', 'sr_nbr2',
+                     'sr_savi', 'sr_msavi', 'sr_evi']
+    },
+        'format': 'envi',
+        'note': 'Test4',
+        'resize': {
+            'pixel_size': 500,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'sinu': {
+                'central_meridian': -76.6,
+                'false_easting': 0,
+                'false_northing': 0
+            }
+        },
+        'resampling_method': 'nn'
+
+    }], "LT5_L1TP_010054_test5": [{'tm5_collection': {
+        'inputs': ['LT05_L1TP_010054_20110312_20161209_01_T1'],
+        'products': ['swe']
+    },
+        'format': 'gtiff',
+        'note': 'Test5',
+
+    }], "LE07_t4": [{'etm7_collection': {
+        'inputs': ['LE07_L1TP_039037_20080712_20160922_01_T1'],
+        'products': ['sr']
+    },
+        'format': 'gtiff',
+        'note': 'Test4',
+        'resize': {
+            'pixel_size': 500,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'aea': {
+                'central_meridian': -96,
+                'datum': 'nad83',
+                'false_easting': 0,
+                'false_northing': 0,
+                'latitude_of_origin': 23,
+                'standard_parallel_1': 29.5,
+                'standard_parallel_2': 45.5
+            }
+        },
+        'resampling_method': 'nn'
+
+    }], "LE07_T2": [{'etm7_collection': {
+        'inputs': ['LE07_L1TP_039037_20080712_20160922_01_T1'],
+        'products': ['l1', 'bt']
+    },
+        'format': 'envi',
+        'note': 'Test2',
+        'resize': {
+            'pixel_size': 500,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'utm': {
+                'zone': 11,
+                'zone_ns': 'north'
+            }
+        },
+        'resampling_method': 'nn'
+
+    }], "LE07_L1GT_T2": [{'etm7_collection': {
+        'inputs': ['LE07_L1GT_210117_20130302_20161125_01_T2'],
+        'products': ['l1', 'source_metadata', 'sr']
+    },
+        'format': 'envi',
+        'note': 'Test2',
+        'resize': {
+            'pixel_size': 0.0025,
+            'pixel_size_units': 'dd'
+        },
+        'projection': {
+            'lonlat': None
+        },
+        'resampling_method': 'nn'
+
+    }], "reruns": [{'etm7_collection': {
+        'inputs': ['LE07_L1TP_200025_20000831_20170210_01_T1'],
+        'products': ['source_metadata', 'sr', 'swe', 'sr_ndvi']
+    },
+        'format': 'envi',
+        'note': 'Test1'
+
+    }, {'etm7_collection': {
+        'inputs': ['LE07_L1TP_195021_20150907_20161021_01_T1'],
+        'products': ['toa', 'bt', 'sr_evi', 'swe']
+    },
+        'format': 'netcdf',
+        'note': 'Test2',
+        'projection': {
+            'lonlat': None
+        },
+        'resize': {
+            'pixel_size': 0.004,
+            'pixel_size_units': 'dd'
+        },
+        'image_extents': {
+            'west': 12,
+            'north': 56,
+            'east': 13,
+            'south': 55.5,
+            'units': 'dd'
+        },
+        'resampling_method': 'cc'
+
+    }, {'olitirs8_collection': {
+        'inputs': ['LC08_L1TP_047027_20131014_20170308_01_T1'],
+        'products': ['toa']
+    },
+        'format': 'envi',
+        'note': 'Test5',
+        'resize': {
+            'pixel_size': 2000,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'utm': {
+                'zone': 11,
+                'zone_ns': 'north'
+            }
+        },
+        'resampling_method': 'cc'
+
+    }, {'olitirs8_collection': {
+        'inputs': ['LC08_L1TP_047027_20131014_20170308_01_T1'],
+        'products': ['l1']
+    },
+        'format': 'hdf-eos2',
+        'note': 'Test3',
+        'resize': {
+            'pixel_size': 2000,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'aea': {
+                'latitude_of_origin': 23,
+                'datum': 'nad83',
+                'central_meridian': -96,
+                'standard_parallel_1': 29.5,
+                'standard_parallel_2': 45.5,
+                'false_easting': 0,
+                'false_northing': 0
+            }
+        },
+        'resampling_method': 'bil'
+
+    }, {'olitirs8_collection': {
+        'inputs': ['LC08_L1TP_047027_20131014_20170308_01_T1'],
+        'products': ['sr', 'toa', 'sr_ndvi']
+    },
+        'format': 'envi',
+        'note': 'Test1',
+
+    }, {'etm7_collection': {
+        'inputs': ['LE07_L1GT_210117_20130302_20161125_01_T2'],
+        'products': ['sr_ndvi', 'sr_ndmi', 'sr_nbr', 'sr_nbr2',
+                     'sr_savi', 'sr_msavi', 'sr_evi']
+    },
+        'format': 'gtiff',
+        'note': 'Test4',
+        'resize': {
+            'pixel_size': 500,
+            'pixel_size_units': 'meters'
+        },
+        'projection': {
+            'ps': {
+                'false_easting': 0,
+                'false_northing': 0,
+                'latitude_true_scale': -90,
+                'longitudinal_pole': 0
+            }
+        },
+        'resampling_method': 'nn'
+
+    }], "L8_retry": [{'olitirs8_collection': {
+        'inputs': ['LC08_L1TP_047027_20131014_20170308_01_T1'],
+        'products': ['sr', 'toa', 'sr_ndvi']
+    },
+        'format': 'envi',
+        'note': 'Test1',
+
+        # ***********************
+        # ***** BRIDGE TEST *****
+        # ***********************
+
+    }], "bridge_test": [{"olitirs8_collection": {
+        "inputs": ["LC08_L1TP_015035_20140713_20170304_01_T1",
+                   "LC08_L1TP_022032_20130828_20170309_01_T1",
+                   "LC08_L1TP_032032_20160522_20170223_01_T1",
+                   "LC08_L1TP_035038_20130331_20170313_01_T1",
+                   "LC08_L1TP_047027_20131014_20170308_01_T1",
+                   "LC08_L1GT_066017_20130917_20170308_01_T2"],
+
+        "products": ["sr", "st", "swe"]
+    },
+        "format": "gtiff",
+        "note": "LC08"},
+
+        {"etm7_collection": {
+            "inputs": ["LE07_L1TP_022033_20140228_20160905_01_T1"],
+            "products": ["sr", "st", "swe"]
+        },
+            "format": "gtiff",
+            "note": "LE07"},
+
+        {"tm4_collection": {
+            "inputs": ["LT04_L1TP_035027_19890712_20161001_01_T1"],
+            "products": ["sr", "st", "swe"]
+        },
+            "format": "gtiff",
+            "note": "LT04"
+        }
+
+    ], "bridge_test_full": [{"olitirs8_collection": {
+        "inputs": ["LC08_L1TP_015035_20140713_20170304_01_T1",
+                   "LC08_L1TP_022032_20130828_20170309_01_T1",
+                   "LC08_L1TP_032032_20160522_20170223_01_T1",
+                   "LC08_L1TP_035038_20130331_20170313_01_T1",
+                   "LC08_L1TP_047027_20131014_20170308_01_T1",
+                   "LC08_L1GT_066017_20130917_20170308_01_T2"],
+
+        "products": ["sr", "st", "swe", "toa", "bt"]
+    },
+        "format": "gtiff",
+        "note": "utmLC08"},
+
+        {"etm7_collection": {
+            "inputs": ["LE07_L1TP_022033_20140228_20160905_01_T1"],
+            "products": ["sr", "st", "swe", "toa", "bt"]
+        },
+            "format": "gtiff",
+            "note": "utmLE07"},
+
+        {"tm4_collection": {
+            "inputs": ["LT04_L1TP_035027_19890712_20161001_01_T1"],
+            "products": ["sr", "st", "swe", "toa", "bt"]
+        },
+            "format": "gtiff",
+            "note": "utmLT04"
+        }
+
+    ],     "bridge_test_albers": [{"olitirs8_collection": {
+        "inputs": ["LC08_L1TP_015035_20140713_20170304_01_T1",
+                   "LC08_L1TP_022032_20130828_20170309_01_T1",
+                   "LC08_L1TP_032032_20160522_20170223_01_T1",
+                   "LC08_L1TP_035038_20130331_20170313_01_T1",
+                   "LC08_L1TP_047027_20131014_20170308_01_T1",
+                   "LC08_L1GT_066017_20130917_20170308_01_T2"],
+
+        "products": ["sr", "st", "swe", "toa", "bt"]
+    },
+        "format": "gtiff",
+        "note": "btest",
+        'projection': {
+                          'aea': {
+                              'central_meridian': -96,
+                              'datum': 'wgs84',
+                              'false_easting': 0,
+                              'false_northing': 0,
+                              'latitude_of_origin': 23,
+                              'standard_parallel_1': 29.5,
+                              'standard_parallel_2': 45.5
+                          }
+                      }},
+
+        {"etm7_collection": {
+            "inputs": ["LE07_L1TP_022033_20140228_20160905_01_T1"],
+            "products": ["sr", "st", "swe", "toa", "bt"]
+        },
+            "format": "gtiff",
+            "note": "btest",
+        'projection': {
+                          'aea': {
+                              'central_meridian': -96,
+                              'datum': 'wgs84',
+                              'false_easting': 0,
+                              'false_northing': 0,
+                              'latitude_of_origin': 23,
+                              'standard_parallel_1': 29.5,
+                              'standard_parallel_2': 45.5
+                          }
+                      }},
+
+        {"tm4_collection": {
+            "inputs": ["LT04_L1TP_035027_19890712_20161001_01_T1"],
+            "products": ["sr", "st", "swe", "toa", "bt"]
+        },
+            "format": "gtiff",
+            "note": "btest",
+            'projection': {
+                'aea': {
+                    'central_meridian': -96,
+                    'datum': 'wgs84',
+                    'false_easting': 0,
+                    'false_northing': 0,
+                    'latitude_of_origin': 23,
+                    'standard_parallel_1': 29.5,
+                    'standard_parallel_2': 45.5
+                }
+            }
+
+        }
+
+    ]
+}

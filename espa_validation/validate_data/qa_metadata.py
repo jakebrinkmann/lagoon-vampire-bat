@@ -1,6 +1,10 @@
 """qa_metadata.py"""
+
 import os
 import logging
+from lxml import etree
+from espa_validation.validate_data.file_io import Cleanup, ImWrite
+from espa_validation.validate_data.qa_images import ArrayImage
 
 
 class MetadataQA:
@@ -11,8 +15,6 @@ class MetadataQA:
         :param schema: <str> Path to XML schema file.
         :return: None
         """
-        from lxml import etree
-
         # read schema
         xmlschema = etree.XMLSchema(etree.parse(schema))
 
@@ -30,7 +32,6 @@ class MetadataQA:
             logging.critical('XML file {0} is NOT valid with XML schema {1}.'
                              .format(test, schema))
 
-
     @staticmethod
     def check_text_files(test, mast, ext):
         """Check master and test text-based files (headers, XML, etc.)
@@ -42,8 +43,6 @@ class MetadataQA:
             mast <str>: path to master text file
             ext <str>: file extension (should be .txt, .xml or .gtf
         """
-        from file_io import Cleanup
-
         logging.info("Checking {0} files...".format(ext))
 
         test, mast = Cleanup.remove_nonmatching_files(test, mast)
@@ -56,7 +55,7 @@ class MetadataQA:
 
         if len(mast) != len(test):
             logging.error("{0} file lengths differ. Master: {1} | Test:"
-                " {2}".format(ext, len(mast), len(test)))
+                          " {2}".format(ext, len(mast), len(test)))
             return
 
         for i, j in zip(test, mast):
@@ -96,18 +95,15 @@ class MetadataQA:
                              format(i, j))
 
     @staticmethod
-    def check_jpeg_files(test, mast, dir_out):
-        """Check JPEG files (i.e., Gverify or preview images) for diffs in file
-        size or file contents. Plot difference image if applicable.
-
-        Args:
-            test <str>: path to test jpeg file
-            mast <str>: path to master jpeg file
-            dir_out <str>: output directory for difference image
+    def check_jpeg_files(test: list, mast: list, dir_out: str) -> None:
         """
-        from qa_images import ArrayImage
-        from file_io import ImWrite, Cleanup
-
+        Check JPEG files (i.e., Gverify or preview images) for diffs in file size or file contents.  Plot difference
+        image if applicable
+        :param test: List of paths to test jpg files
+        :param mast: List of paths to master jpg files
+        :param dir_out: Full path to output directory
+        :return:
+        """
         test, mast = Cleanup.remove_nonmatching_files(test, mast)
         logging.info("Checking JPEG preview/gverify files...")
 
@@ -116,26 +112,25 @@ class MetadataQA:
                           "directories.")
 
         else:
-            if len(test) > 0 and len(mast) > 0:
-                for i, j in zip(test, mast):
+            for i, j in zip(test, mast):
 
-                    # Compare file sizes
-                    if os.path.getsize(i) != os.path.getsize(j):
-                        logging.warning("JPEG file sizes do not match for "
-                                        "Master {0} and Test {1}...\n".
-                                        format(j, i))
-                        logging.warning("{0} size: {1}".format(
-                            i, os.path.getsize(i)))
-                        logging.warning("{0} size: {1}".format(
-                            j, os.path.getsize(j)))
+                # Compare file sizes
+                if os.path.getsize(i) != os.path.getsize(j):
+                    logging.warning("JPEG file sizes do not match for "
+                                    "Master {0} and Test {1}...\n".
+                                    format(j, i))
+                    logging.warning("{0} size: {1}".format(
+                        i, os.path.getsize(i)))
+                    logging.warning("{0} size: {1}".format(
+                        j, os.path.getsize(j)))
 
-                    else:
-                        logging.info("JPEG files {0} and {1} are the same "
-                                     "size".format(j, i))
+                else:
+                    logging.info("JPEG files {0} and {1} are the same "
+                                 "size".format(j, i))
 
-                    # diff images
-                    result = ArrayImage.check_images(test, mast)
+                # diff images
+                result = ArrayImage.check_images(i, j)
 
-                    if result:
-                        ImWrite.plot_image_diff(result, i.split(os.sep)[-1],
-                                                "diff", dir_out)
+                if result:
+                    ImWrite.plot_diff_image(test=i, mast=j, diff_raster=result, fn_out=i.split(os.sep)[-1],
+                                            fn_type="diff_", dir_out=dir_out)

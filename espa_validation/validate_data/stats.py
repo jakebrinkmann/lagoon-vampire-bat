@@ -1,20 +1,19 @@
-"""stats.py
+"""Purpose: get comparision results, run statistics, write out to files."""
 
-Purpose: get comparision results, run statistics, write out to files.
-"""
 import os
 import csv
 import numpy as np
 import logging
 
 
-def pct_diff_raster(ds_tband, ds_mband, diff_rast, nodata=-9999):
-    """Calculate percent difference raster.
-
-    Args:
-        ds_tband <numpy.ndarray>: array of test raster
-        ds_mband <numpy.ndarray>: array of master raster
-        diff_rast <numpy.ndarray>: array of diff raster
+def pct_diff_raster(ds_tband: np.ndarray, ds_mband: np.ndarray, diff_rast: np.ndarray, nodata: int=-9999) -> np.ndarray:
+    """
+    Calculate percent difference raster
+    :param ds_tband: array of test raster
+    :param ds_mband: array of master raster
+    :param diff_rast: array of difference raster
+    :param nodata: int representing no data value
+    :return:
     """
     # get min and max of both rasters' worth of data
     mins = []
@@ -38,17 +37,17 @@ def pct_diff_raster(ds_tband, ds_mband, diff_rast, nodata=-9999):
     return pct_diff_raster
 
 
-def img_stats(test, mast, diff_img, dir_in, fn_in, dir_out, sds_ct=0):
-    """Log stats from array
-
-    Args:
-        test <str>: name of test file
-        mast <str>: name of master file
-        diff_img <numpy.ndarray>: image array
-        dir_in <str>: directory where test data exists
-        fn_in <str>: input filename (to identify csv entry)
-        dir_out <str>: output directory
-        sds_ct <int>: index of SDS (default=0)
+def img_stats(test: str, mast: str, diff_img: np.ndarray, dir_in: str, fn_in: str, dir_out: str, sds_ct: int=0) -> None:
+    """
+    Log stats from array
+    :param test: name of test file
+    :param mast: name of master file
+    :param diff_img: image array
+    :param dir_in: directory where test data exists
+    :param fn_in: input filename (to identify csv entry)
+    :param dir_out: output directory
+    :param sds_ct: index of SDS (default=0)
+    :return:
     """
     diff_img = np.ma.masked_where(diff_img == 0, diff_img)
 
@@ -57,7 +56,8 @@ def img_stats(test, mast, diff_img, dir_in, fn_in, dir_out, sds_ct=0):
 
     file_exists = os.path.isfile(fn_out)
 
-    with open(fn_out, "ab") as f:
+    # Changed "ab" to "a", using python 3.6 was getting TypeError: a bytes-like object is required, not 'str'
+    with open(fn_out, "a") as f:
         writer = csv.writer(f)
 
         # write header if file didn't already exist
@@ -87,3 +87,5 @@ def img_stats(test, mast, diff_img, dir_in, fn_in, dir_out, sds_ct=0):
                         np.percentile(diff_img.compressed(), 99),
                         np.std(diff_img),
                         np.median(diff_img.compressed())))
+
+        return None
