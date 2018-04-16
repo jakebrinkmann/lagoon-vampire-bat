@@ -7,7 +7,6 @@ import sys
 import requests
 import json
 
-from espa_validation.retrieve_data import order_specs
 from espa_validation.retrieve_data import api_config
 from espa_validation.retrieve_data import espa_orders_api
 
@@ -28,23 +27,24 @@ def order_text(outdir: str) -> str:
     return outdir + os.sep + "order_{}_.txt".format(api_config.timestamp())
 
 
-def load_order(order_key: str) -> dict:
+def load_order(note: str, group: str) -> dict:
     """
     Load in a pre-constructed order by default if None is specified.  Otherwise, load the order from a .yaml file
-    :param order_key: A string containing the order key, otherwise "original" will be used
+    :param group: Group name to find orders (./orders/group/*.json)
+    :param note: The order note (will become note.json)
     :return:
     """
-    if order_key is None:
-        return order_specs.orders["original"]
+    filename = 'orders/{group}/{note}.json'.format(group=group, note=note)
+    if not os.path.exists(filename):
+        raise IOError('File does not exist: {}', filename)
 
-    else:
-        try:
-            return order_specs.orders[order_key]
+    try:
+        return json.load(open(filename))
 
-        except KeyError:
-            print("The given key: {} does not exist in the order_specs.py file.".format(order_key))
-
-            sys.exit(1)
+    except Exception as exc:
+        msg = "Problem loading file: {}".format(filename)
+        print(msg)
+        raise
 
 
 def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=None, order: str=None):
@@ -61,7 +61,7 @@ def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=No
 
     espa_url = espa_orders_api.get_espa_env(espa_env)
 
-    orders = load_order(order)
+    orders = load_order(order, 'original')
 
     order_length = len(orders)
 
