@@ -51,10 +51,9 @@ import time
 # TODO (low): Only CleanUp files that pass all matching tests, leave files with differences to allow further testing.
 
 def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xml_schema: str = None,
-            verbose: bool = False, incl_nd: bool = False, enforce_fnmatch: bool = True) -> None:
+            verbose: bool = False, incl_nd: bool = False) -> None:
     """
     Function to check files and call appropriate QA module(s)
-    :param enforce_fnmatch: Decide whether or not to enforce that file names must match exactly
     :param dir_mast: Full path to the master directory
     :param dir_test: Full path to the test directory
     :param dir_out: Full path to the QA output directory
@@ -166,7 +165,7 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xm
             # else, it's probably a geo-based image
             else:
                 GeoImage.check_images(test_f, mast_f, dir_out, ext,
-                                      include_nd=incl_nd, fnmatching=enforce_fnmatch)
+                                      include_nd=incl_nd)
 
     if archive:
         # Clean up files
