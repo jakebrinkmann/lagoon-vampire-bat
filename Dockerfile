@@ -1,11 +1,8 @@
-FROM python:3.6
+FROM continuumio/miniconda3:4.4.10
 
-
-# --no-cache-dir
-RUN apt-get update --assume-yes \
-    && apt-get install gdal-bin python-gdal python3-gdal --assume-yes \
-    && pip install  --trusted-host  pypi.python.org --trusted-host  pypi.org --trusted-host files.pythonhosted.org  --upgrade pip \
-    && pip install  --trusted-host  pypi.python.org --trusted-host  pypi.org --trusted-host files.pythonhosted.org  matplotlib
 COPY . /usr/local/src
 WORKDIR /usr/local/src
-RUN pip install -e .
+
+RUN conda config --add channels conda-forge \
+    && conda install -yq gdal \
+    && pip install --no-cache-dir -e .
