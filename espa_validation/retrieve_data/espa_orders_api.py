@@ -23,12 +23,12 @@ def get_time() -> datetime.datetime:
     return datetime.datetime.now()
 
 
-def espa_login() -> str:
+def espa_login(username: str=None) -> str:
     """
     Get ESPA password using command-line input
     :return:
     """
-    return getpass.getpass("Enter ESPA password: ")
+    return getpass.getpass("Enter ESPA password ({}): ".format(username))
 
 
 def get_espa_env(env_in: str) -> str:
