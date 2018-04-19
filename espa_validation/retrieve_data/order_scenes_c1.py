@@ -90,12 +90,15 @@ def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=No
             print("\nThere was likely a problem connecting with the host.  "
                   "Check to see if ESPA is down for maintenance.")
 
-    with open(order_text(outdir), "a") as f:
-        if type(response) is dict:
-            f.write(str(response) + "\n")
+    if outdir:
+        with open(order_text(outdir), "a") as f:
+            if type(response) is dict:
+                f.write(str(response) + "\n")
 
-        else:
-            for resp in response:
-                f.write(str(resp) + "\n")
+            else:
+                for resp in response:
+                    f.write(str(resp) + "\n")
+    else:
+        print(json.dumps(response, indent=4))
 
     return None
