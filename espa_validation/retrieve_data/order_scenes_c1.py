@@ -4,8 +4,11 @@
 
 import os
 import sys
-import requests
 import json
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+import requests
 
 from espa_validation.retrieve_data import api_config
 from espa_validation.retrieve_data import espa_orders_api
@@ -27,7 +30,7 @@ def order_text(outdir: str) -> str:
     return outdir + os.sep + "order_{}_.txt".format(api_config.timestamp())
 
 
-def load_order(note: str, group: str) -> dict:
+def load_order(note: str, group: str='original') -> dict:
     """
     Load in a pre-constructed order by default if None is specified.  Otherwise, load the order from a .yaml file
     :param group: Group name to find orders (./orders/group/*.json)
@@ -47,7 +50,7 @@ def load_order(note: str, group: str) -> dict:
         raise
 
 
-def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=None, order: str=None):
+def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=None, group: str=None, note: str=None):
     """
     Place the order with the appropriate ESPA environment
     :param order: Optionally specify a keyword pointing to a specific order
@@ -57,11 +60,11 @@ def place_order(espa_env: str, username: str, ssl_ver: bool=True, outdir: str=No
     :param username: ESPA username
     :return:
     """
-    passwd = espa_orders_api.espa_login()
+    passwd = espa_orders_api.espa_login(username)
 
     espa_url = espa_orders_api.get_espa_env(espa_env)
 
-    orders = load_order(order, 'original')
+    orders = load_order(note, group)
 
     order_length = len(orders)
 

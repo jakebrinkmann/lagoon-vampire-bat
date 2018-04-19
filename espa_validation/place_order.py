@@ -21,7 +21,10 @@ def main():
     parser.add_argument("--ssl-verify", dest="ssl_ver", required=False, action="store_true",
                         help="Set SSL Verify to True or False")
 
-    parser.add_argument("--order", dest="order", type=str, required=False, action="store",
+    parser.add_argument("--note", dest="note", type=str, required=False, action="store",
+                        help="Specify a keyword to look up the appropriate order from order_specs.py")
+
+    parser.add_argument("--group", dest="group", type=str, required=False, action="store",
                         help="Specify a keyword to look up the appropriate order from order_specs.py")
 
     args = parser.parse_args()
