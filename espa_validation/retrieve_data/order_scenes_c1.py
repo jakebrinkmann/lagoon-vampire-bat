@@ -34,9 +34,9 @@ def load_order(note: str, group: str) -> dict:
     :param note: The order note (will become note.json)
     :return:
     """
-    filename = 'orders/{group}/{note}.json'.format(group=group, note=note)
+    filename = 'espa_validation/orders/{group}/{note}.json'.format(group=group, note=note)
     if not os.path.exists(filename):
-        raise IOError('File does not exist: {}', filename)
+        raise IOError('File does not exist: {}'.format(filename))
 
     try:
         return json.load(open(filename))
