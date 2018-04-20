@@ -1,84 +1,75 @@
-"""Various methods for interacting with files"""
-
+# file_io.py
 import sys
 import os
 import logging
 import tarfile
 import time
-import fnmatch
-import shutil
-import itertools
 
 
 class Extract:
     @staticmethod
-    def unzip_gz_files(tests: list, masts: list) -> None:
+    def unzip_gz_files(test, mast):
+        """Extract files from archives in sorted order
+
+        Args:
+            test <str>: path to test .gz archive.
+            mast <str>: path to master .gz archive.
         """
-        Extract files from archives in sorted order
-        :param tests: List of paths to the test .gz archives
-        :param masts: List of paths to the master .gz archives
-        :return:
-        """
+
         print('Warning: decompressing files. Make sure you have the necessary '
               'disk space to complete this operation...\n')
-
         time.sleep(5)
 
-        # Make sure the lists are sorted
-        masts.sort()
-
-        tests.sort()
-
-        for mast, test in zip(masts, tests):
+        mast = sorted(mast)
+        test = sorted(test)
+        for i, j in zip(enumerate(mast), test):
             try:
-                tar_mast = tarfile.open(mast, 'r:gz')
+                tar_mast = tarfile.open(i[1], 'r:gz')
+                tar_test = tarfile.open(j, 'r:gz')
+                logging.info("{0} is {1} MB...\n".
+                             format(i[1], int(os.path.getsize(i[1]) >> 20)))
+                logging.info("{0} is {1} MB...\n".
+                             format(j, os.path.getsize(j) >> 20))
 
-                tar_test = tarfile.open(test, 'r:gz')
-
-                logging.info("{0} is {1} MB...\n".format(mast, os.path.getsize(mast) * 0.000001))
-
-                logging.info("{0} is {1} MB...\n".format(test, os.path.getsize(test) * 0.000001))
-
-                if os.path.getsize(mast) == 0:
-                    logging.critical("Archive {0} is of zero size!".format(mast))
-
+                if os.path.getsize(i[1]) == 0:
+                    logging.critical("Archive {0} is of zero size!".
+                                     format(i[1]))
                     sys.exit(1)
 
-                elif os.path.getsize(test) == 0:
-                    logging.critical("Archive {0} is of zero size!".format(test))
-
+                elif os.path.getsize(j) == 0:
+                    logging.critical("Archive {0} is of zero size!".
+                                     format(i[j]))
                     sys.exit(1)
 
             except:
-                logging.critical("Problem with .tar.gz file(s): {0} and {1}.".format(mast, test))
-
+                logging.critical("Problem with .tar.gz file(s): {0} and {1}.".
+                                 format(i[1], j))
                 sys.exit(1)
 
             try:
-                tar_mast.extractall(path=os.path.dirname(mast))
-
-                tar_test.extractall(path=os.path.dirname(test))
+                tar_mast.extractall(path=os.path.dirname(i[1]))
+                tar_test.extractall(path=os.path.dirname(j))
 
             except:
-                logging.critical("Problem extracting contents from .tar.gz. file:"
-                                 "{0} and {1}.".format(mast, test))
-
-        return None
+                logging.critical("Problem extract contents from .tar.gz. file:"
+                                 "{0} and {1}.".format(i[1], j))
 
 
 class Find:
     @staticmethod
-    def find_files(target_dir: str, ext: str) -> list:
+    def find_files(target_dir, ext):
+        """Recursively find files by extension
+
+        Args:
+            target_dir <str>: path to target directory
+            ext <str>: target file extension
         """
-        Recursively find files by extension
-        :param target_dir: The full path to the target directory
-        :param ext: The file type to look for
-        :return:
-        """
-        out_files = list()
+        import fnmatch
+
+        out_files = []
 
         for root, dirnames, filenames in os.walk(target_dir):
-            for filename in fnmatch.filter(filenames, "*{}".format(ext)):
+            for filename in fnmatch.filter(filenames, '*' + ext):
                 out_files.append(os.path.join(root, filename))
 
         if len(out_files) == 0:
@@ -330,6 +321,8 @@ class Cleanup:
            test_fnames <str>: test file
            mast_fnames <str>: master file
         """
+        import itertools
+
         def rm_fn(fns):
             """Grab just the filename
 
@@ -341,24 +334,26 @@ class Cleanup:
                 split_fnames.append(i.split(os.sep)[-1])
             return split_fnames
 
-        def compare_and_rm(t_names, m_names):
+        def compare_and_rm(test_fnames, mast_fnames):
+            """Compare just the file names, remove non-matches, return list
+
+            Args:
+                test_fnames <str>: test file
+                mast_fnames <str>: master file
             """
-            Compare just the file names, remove non-matches and return a list
-            :param t_names: test file names
-            :param m_names: master file names
-            :return:
-            """
-            fn_diffs = sorted(list(set(rm_fn(t_names))
-                                   .difference(set(rm_fn(m_names)))))
+            fn_diffs = sorted(list(set(rm_fn(test_fnames))
+                                   .difference(set(rm_fn(mast_fnames)))))
 
             if len(fn_diffs) > 0:
-                logging.warning("Files to be removed: {0}".format(fn_diffs))
+                logging.warning("Mis-matched filenames: {0}".format(fn_diffs))
+                # if raw_input('Do you want delete theses files? (N/[y]) ') == 'N':
+                #     return test_fnames
 
             if len(fn_diffs) == 0:
-                return t_names
+                return test_fnames
 
             # get only file name
-            test_fn = rm_fn(t_names)
+            test_fn = rm_fn(test_fnames)
 
             rm = []
             for ii in test_fn:
@@ -370,9 +365,9 @@ class Cleanup:
             logging.debug("remove boolean: {0}".format(rm))
             logging.debug("test_fn: {0}".format(test_fn))
             logging.debug("final list: {0}".format(list(
-                itertools.compress(t_names, rm))))
+                itertools.compress(test_fnames, rm))))
 
-            return list(itertools.compress(t_names, rm))
+            return list(itertools.compress(test_fnames, rm))
 
         test_output = compare_and_rm(test_fnames, mast_fnames)
         mast_output = compare_and_rm(mast_fnames, test_fnames)
@@ -386,26 +381,24 @@ class Cleanup:
         return test_output, mast_output
 
     @staticmethod
-    def cleanup_files(indir: str):
-        """
-        Clean up all unpacked files, leaving alone the .tar.gz archives
-        :param indir: Full path to the target directory
-        :return:
-        """
+    def cleanup_files(dir_mast):
+        """Clean up all test files, except for .tar.gz archives
+
+        Args:
+            dir_mast <str>: path to directory where files need to be rm'd"""
+        import shutil
+        import fnmatch
+
         print("Cleaning up files...")
-
         all_files = [os.path.join(dirpath, f)
-                     for dirpath, dirnames, files in os.walk(indir)
+                     for dirpath, dirnames, files in os.walk(dir_mast)
                      for f in fnmatch.filter(files, '*')]
-
         for f in all_files:
             if f.endswith(".tar.gz"):
                 continue
-
             else:
                 try:
                     os.remove(f)
-
                 except:
                     continue
 
@@ -413,20 +406,15 @@ class Cleanup:
 
         # Clean up gap mask files
         gm = [os.path.join(dirpath, f)
-              for dirpath, dirnames, files in os.walk(indir)
+              for dirpath, dirnames, files in os.walk(dir_mast)
               for f in fnmatch.filter(dirnames, 'gap_mask')]
-
         st = [os.path.join(dirpath, f)
-              for dirpath, dirnames, files in os.walk(indir)
+              for dirpath, dirnames, files in os.walk(dir_mast)
               for f in fnmatch.filter(dirnames, 'stats')]
-
         [shutil.rmtree(i, ignore_errors=True) for i in gm]
-
         [shutil.rmtree(i, ignore_errors=True) for i in st]
 
         logging.warning("Removed all non-archive files.")
-
-        return None
 
     @staticmethod
     def rm_files(envi_files, ext):

@@ -9,7 +9,7 @@ def main():
 
     required_named = parser.add_argument_group("Required named arguments")
 
-    required_named.add_argument("-i", dest="txt_in", type=str, required=True, action="store",
+    required_named.add_argument("-i", dest="txt_in", type=str, required=False, action="store",
                                 help="Full path and name of the .txt file containing the ESPA orders")
 
     required_named.add_argument("-o", dest="outdir", type=str, required=True, action="store",

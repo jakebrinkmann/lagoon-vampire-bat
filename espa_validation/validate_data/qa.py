@@ -71,6 +71,7 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xm
         os.makedirs(dir_out)
 
     # initiate logger
+    import sys
     if verbose:
         log_out = dir_out + os.sep + "log_" + time.strftime("%Y%m%d-%I%M%S") + "_verbose.log"
 
@@ -84,6 +85,7 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xm
         logging.basicConfig(filename=log_out,
                             level=logging.WARNING,
                             format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.getLogger().addHandler(logging.StreamHandler(sys.stderr))
 
     if archive:
         # do initial cleanup of input directories
@@ -119,15 +121,20 @@ def qa_data(dir_mast: str, dir_test: str, dir_out: str, archive: bool = True, xm
 
         all_mast = sorted(Find.find_files(mast_dirs[i], ".*"))
 
+        if len(all_test) != len(all_mast):
+            logging.critical("Directory structure of Master differs from Test.")
+            logging.critical("Master {} Test {}".format(mast_dirs[i], test_dirs[i]))
+            sys.exit(1)
+
         # Find unique file extensions
         exts = Find.get_ext(all_test, all_mast)
 
         for ext in exts:
             logging.info("Finding {0} files...".format(ext))
 
-            test_f = Find.find_files(test_dirs[i], ext)
+            test_f = sorted(Find.find_files(test_dirs[i], ext))
 
-            mast_f = Find.find_files(mast_dirs[i], ext)
+            mast_f = sorted(Find.find_files(mast_dirs[i], ext))
 
             logging.info("Performing QA on {0} files located in {1}".format(ext, dir_test))
 

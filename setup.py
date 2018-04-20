@@ -36,7 +36,8 @@ setup(
         "pandas",
         "lxml",
         "scikit_image",
-        "pyyaml"
+        "humanize",
+        "pyyaml",
     ],
 
     entry_points={"console_scripts": [

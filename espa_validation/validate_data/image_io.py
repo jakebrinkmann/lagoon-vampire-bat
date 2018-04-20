@@ -62,11 +62,10 @@ class RasterIO:
         rast_arr = np.array(r_a.ReadAsArray())
 
         # mask nodata value, if it exists
-        if r_nd:
+        if r_nd is not None:
             rast_arr = np.ma.masked_where(rast_arr == r_nd, rast_arr)
             logging.info("NoData value: {0}".format(r_nd))
         else:
-            rast_arr = r_a
             logging.info("NoData value could not be determined.")
 
         return (rast_arr,r_nd)

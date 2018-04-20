@@ -53,35 +53,22 @@ def check_order_status(product_id: str, base_url: str, username: str, password: 
     r = requests.get(url=base_url + api_config.api_urls["status"] + product_id,
                      auth=(username, password))
 
-    if "msg" in r.json():
+    if product_id not in r.json():
         print("Error: order not found.")
-
         print("Return info: {}".format(r.json()))
-
-        return False
+        return
 
     else:
-        r_info = r.json()[product_id]
-
-        prod_stat = list()
-
-        for oid in range(len(r_info)):
-            prod_stat.append(str(r.json()[product_id][oid]["status"]))
-
-        if all(status == "complete" for status in prod_stat):
-            print("Orders complete and ready to download.")
-
-            return r.json()
-
+        status_info = r.json()[product_id]
+        prod_stat = [str(item["status"]) for item in status_info]
+        if all(status in ("complete", "unavailable") for status in prod_stat):
+            print("Order ready to download")
+            return status_info
         else:
             print("An error has occurred or orders have not yet finished.")
+            return
 
-            pprint(prod_stat)
-
-            pprint(r.json())
-
-            return False
-
+from humanize import naturalsize as bytestr
 
 def retrieve_order(outdir: str, order_url: str):
     """
@@ -97,17 +84,13 @@ def retrieve_order(outdir: str, order_url: str):
 
     outfile = outdir + os.sep + order_id
 
-    print("Initiating download...")
-
     t = time.time()
 
     resp = requests.get(order_url, stream=True)
 
-    print(resp.status_code)
+    print("{} [{}] --> {}".format(order_url, bytestr(resp.headers['Content-Length']), outfile))
 
-    if resp.status_code == "ordered" or resp.status_code == 200:
-        print("Starting download...")
-
+    if resp.ok:
         with open(outfile, "wb") as f:
             for chunk in resp.iter_content(chunk_size=2048):
                 f.write(chunk)
@@ -117,12 +100,15 @@ def retrieve_order(outdir: str, order_url: str):
 
     else:
         print("Could not download {}".format(order_url))
-
         print("Error {}".format(str(resp.status_code)))
 
-    print("Download of {} complete.".format(order_id))
 
-    return None
+def espa_list_orders(host, user, secret, status: str='complete'):
+    # TODO: write docstring
+    url = '{}/{}'.format(host, 'api/v1/list-orders')
+    body = {'status': status}
+    return [requests.get('{}/api/v1/order/{}'.format(host, o), auth=(user, secret)).json()
+            for o in requests.get(url, json=body, auth=(user, secret)).json()]
 
 
 def get_orders(txt_in: str, outdir: str, username: str, espa_env: str):
@@ -137,65 +123,41 @@ def get_orders(txt_in: str, outdir: str, username: str, espa_env: str):
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    passwd = espa_login()
+    passwd = 'LSRD_605today' # espa_login(username)
+    espa_url = get_espa_env(espa_env)
 
-    order_list = list()
-    error_list = list()
-    failed_list = list()
-    failed_msg_list = list()
-    misc_list = list()
-    misc_err_msg = list()
-    rerun_list = list()
+    import json
+    if txt_in:
+        order_list = json.load(open(txt_in))
+        order_list = filter(lambda x: 'errors' not in x, order_list)
+    else:
+        order_list = espa_list_orders(espa_url, username, passwd, ['complete', 'ordered'])
 
-    # Populate a new list with the orders contained in the opened file pointed to by txt_in
-    with open(txt_in, "r") as txt:
-        for line in txt:
-            if "errors" not in line:
-                # Only read in lines that are missing the keyword "errors"
-                order_list.append(ast.literal_eval(line))
-
-            else:
-                # Create a list of all the lines containing the keyword "errors"
-                error_list.append(ast.literal_eval(line))
-
-    # pprint(order_list)
-    # pprint(error_list)
+    urls = list()
 
     t0 = get_time()
 
-    espa_url = get_espa_env(espa_env)
-
     for order in order_list:
 
-        if order["status"] == "failed" or order["status"] == 400:
-            failed_list.append(order)
-
-            failed_msg_list.append(order["message"])
-
-        elif order["status"] == "ordered" or order["status"] == 200:
+        if order["status"] == "complete" or order["status"] == "ordered":
             print("Getting order ID...")
 
-            order_info = check_order_status(order[u"orderid"], espa_url, username, passwd)
+            status_info = check_order_status(order["orderid"], espa_url, username, passwd)
 
             # print(order_info)
 
-            if order_info is not False:
-                status_info = order_info[order[u"orderid"]]
-
+            if status_info is not None:
                 scene_id = list()
                 dl_url = list()
 
-                order_info = requests.get(espa_url + api_config.api_urls["order"] + order[u"orderid"],
+                order_info = requests.get(espa_url + api_config.api_urls["order"] + order["orderid"],
                                           auth=(username, passwd))
 
-                note = str(order_info.json()["product_opts"]["note"].capitalize())
-
+                note = str(order_info.json()["product_opts"].get("note") or 'note').capitalize()
                 for j in status_info:
-                    j = dict(j)
-
                     scene_id.append(j["name"])
-
-                    dl_url.append(j["product_dload_url"])
+                    if j['status'] == 'complete':
+                        dl_url.append(j["product_dload_url"])
 
                 if len(scene_id) > 2:
                     ord_sid = "multiple_" + scene_id[0]
@@ -215,38 +177,6 @@ def get_orders(txt_in: str, outdir: str, username: str, espa_env: str):
 
             else:
                 print("Could not retrieve order {}.".format(order[u"orderid"]))
-
-                misc_list.append("Could not download order.")
-
-                misc_err_msg.append("Could not download order.")
-
-                rerun_list.append(order)
-
-        else:
-            misc_list.append(order["status"])
-
-            try:
-                misc_err_msg.append(order["message"])
-            except KeyError:
-                pass
-
-    print("Error orders (400): {}".format(failed_list))
-    print("Why orders failed: {}".format(failed_msg_list))
-
-    print("Orders not yet finished: {}".format(rerun_list))
-
-    print("Other error statuses: {}".format(misc_list))
-    print("Why other errors happened: {}".format(misc_err_msg))
-
-    if len(rerun_list) > 0:
-
-        re_out = outdir + os.sep + "rerun_{}_.txt".format(api_config.timestamp())
-
-        print("Writing unfinished order list to {}".format(re_out))
-
-        with open(re_out, "w") as t:
-            for line in rerun_list:
-                t.write(str(line) + "\n")
 
     t1 = get_time()
 
